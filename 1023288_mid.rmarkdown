@@ -37,27 +37,55 @@ fib
 
 ## 三. 請將 sample_data.txt 輸入進 R 內，並完成以下計算 (55%)
 ```{r}
-### lib 'data.tabe' first, and use 'fread'
+### lib 'data.tabe' first, and use 'fread' @@clean data first
 library(data.table)
 
-fread('D:/凱/生態資訊/data/ecoinfo2016fm-master/sample_data.txt', sep = ' ')
+Q3_data <- fread('D:/凱/生態資訊/data/ecoinfo2016fm-master/sample_data.txt', sep = ' ',  na.strings = c('-9991','-9995','-9996','-9997','-9998','-9999'))
+
+head(Q3_data)
 
 ```
 
 ### (a) 將 yyyymmddhh 轉成 POSIXct 時間戳記格式， 並新增為一個欄(variable)，命名為 timestamp。並將此 sample data 輸出為 sample_data_parsed.csv (以逗號分隔，具有欄位名稱)
 ```{r}
+#### create a variable: data[, timestamps:=as.POSIXct(strptime(yyyymmddhh,'%Y%m%d%H'))]
+#### And output 
 
+Q3_data[,timestamp:=as.POSIXct(strptime(yyyymmddhh-1,'%Y%m%d%H'))]
 
+write.table(Q3_data, file = "sample_data_parsed.csv", sep = ",", col.names = T)
+
+head(Q3_data)
 
 ```
 
-
-
-### (b) 請計算 2014 年至 2015 年這個測站的每月平均氣溫、每月平均濕度、每月累積降水， 並用表格呈現。
+### (b) 請計算 2014 年至 2015 年這個測站的每月平均氣溫(mean_MTP)、每月平均濕度(mean_MW)、每月累積降水(sum_MR)， 並用表格呈現。  @@TX01: 溫度(ºC), RH01: 相對濕度(%), PP01: 降水量(mm)
 ```{r}
+#### write funtions  to calculate mean, sum and ignore NA
 
+mean_omit_na <- function(x){
+   x <- as.numeric(x)
+  return (mean(x, na.rm = T))
+}
 
+sum_omit_na <- function(x){
+  x <- as.numeric(x)
+  return (sum(x, na.rm = T))
+}
 
+#### create a new col "month" , and use aggregate to calculate
+
+Q3_data[, month:= format.Date(timestamp, '%Y-%m')]  
+
+#### use aggregate to calculate
+
+mean_MTP <- aggregate(as.numeric(Q3_data$TX01), by = list(Q3_data$month), FUN = mean_omit_na)
+
+mean_MW <- aggregate(as.numeric(Q3_data$RH01), by = list(Q3_data$month), FUN = mean_omit_na)
+
+sum_MR <- aggregate(as.numeric(Q3_data$PP01), by = list(Q3_data$month), FUN = sum_omit_na)
+
+#### create a table
 ```
 
 ### (c) 請計算 2014 年和 2015 年最冷月分別是在哪個月份？(提示：先計算月均溫)
