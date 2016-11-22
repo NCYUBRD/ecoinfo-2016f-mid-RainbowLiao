@@ -8,23 +8,41 @@ output: html_document
 
 ## 一. 請隨機產生 10000 組正整數儲存成 vector 格式，並輸出成 random10k.csv (5%)
 ```{r}
-Q1 <- sample.int(n = 10000)
+### use 'sample.int' to create 10000 positive integer. And use 'write.table' to output
+
+Q1 <- c(sample.int(n = 10000))
 
 write.table(Q1, file = "random10k.csv", sep = ",")
-```
 
+```
 
 
 ## 二. 請使用 for 迴圈列出 15 個費布納西(Fibonacci)數列 (10%)
 ```{r}
+### deside n, f1, f2 first and write 'for'
 
+n <- 15
+fib <- numeric(n)
+fib[1] <- 1
+fib[2] <- 1
 
+for (x in 3:n) {
+  fib[x]= fib[x-1] + fib[x-2]
+}
+
+fib
 
 ```
 
 
-
 ## 三. 請將 sample_data.txt 輸入進 R 內，並完成以下計算 (55%)
+```{r}
+### lib 'data.tabe' first, and use 'fread'
+library(data.table)
+
+fread('D:/凱/生態資訊/data/ecoinfo2016fm-master/sample_data.txt', sep = ' ')
+
+```
 
 ### (a) 將 yyyymmddhh 轉成 POSIXct 時間戳記格式， 並新增為一個欄(variable)，命名為 timestamp。並將此 sample data 輸出為 sample_data_parsed.csv (以逗號分隔，具有欄位名稱)
 ```{r}
