@@ -9,10 +9,12 @@ output: html_document
 ## 一. 請隨機產生 10000 組正整數儲存成 vector 格式，並輸出成 random10k.csv (5%)
 ```{r}
 ### use 'sample.int' to create 10000 positive integer. And use 'write.table' to output
+setwd('D:/凱/生態資訊/')
 
 Q1 <- c(sample.int(n = 10000))
 
-write.table(Q1, file = "random10k.csv", sep = ",")
+write.table(Q1, file = "random10k.csv", sep = "," , row.names = F)
+
 
 ```
 
@@ -53,7 +55,7 @@ head(Q3_data)
 
 Q3_data[,timestamp:=as.POSIXct(strptime(yyyymmddhh-1,'%Y%m%d%H'))]
 
-write.table(Q3_data, file = "sample_data_parsed.csv", sep = ",", col.names = T)
+write.table(Q3_data, file = "sample_data_parsed.csv", sep = ",", col.names = T, row.names = F)
 
 head(Q3_data)
 
@@ -79,19 +81,35 @@ Q3_data[, month:= format.Date(timestamp, '%Y-%m')]
 
 #### use aggregate to calculate
 
+
 mean_MTP <- aggregate(as.numeric(Q3_data$TX01), by = list(Q3_data$month), FUN = mean_omit_na)
 
 mean_MW <- aggregate(as.numeric(Q3_data$RH01), by = list(Q3_data$month), FUN = mean_omit_na)
 
 sum_MR <- aggregate(as.numeric(Q3_data$PP01), by = list(Q3_data$month), FUN = sum_omit_na)
 
-#### create a table
+
+#### create a table, use 'cbind.data.frame' and rename.
+
+Q3_sheet <- cbind.data.frame(mean_MTP, mean_MW$x, sum_MR$x)
+
+row_name <- c("month", "mean_MTP", "mean_MW", "sum_MR")
+
+setnames(Q3_sheet, row_name)
+
+#### trans sheet by 't'
+
+trans_Q3_sheet <- t(Q3_sheet)
+
+head(trans_Q3_sheet)
+
 ```
 
 ### (c) 請計算 2014 年和 2015 年最冷月分別是在哪個月份？(提示：先計算月均溫)
 ```{r}
-
-
+2014_coldest <- 
+  
+2015_coldest <- 
 
 ```
 
