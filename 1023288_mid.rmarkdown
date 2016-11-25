@@ -107,9 +107,12 @@ head(trans_Q3_sheet)
 
 ### (c) 請計算 2014 年和 2015 年最冷月分別是在哪個月份？(提示：先計算月均溫)
 ```{r}
-2014_coldest <- 
-  
-2015_coldest <- 
+#### sort 'mean_MTP' by "setorder"
+setorder(mean_MTP, x)
+
+head(mean_MTP)
+
+### 可直接看到2014 & 2015 最冷月都在一月
 
 ```
 
@@ -117,8 +120,36 @@ head(trans_Q3_sheet)
 
 ### (d) 在 2015 年最冷的那個月份中，該月中每日的最低溫平均是幾度C？
 ```{r}
+### tip: 先找2015-01 的每日最低溫，在計算平均
+
+#### write a funtion to find min first
+
+min_omit_na <- function(x){
+   x <- as.numeric(x)
+  return (min(x, na.rm = T))
+}
+
+#### 因為知道2015的一月是最冷月，故直接將Q3_data中的2015部分提出，在尋找一月每日最小值，最後平均可得
 
 
+##### 在此多新增'年'與'日'的時間標記以便後續計算
+
+Q3_data[, day:= format.Date(timestamp, '%Y-%m-%d')] 
+
+Q3_data[, year:= format.Date(timestamp, '%Y')] 
+
+#### 拉出'2015-01'data
+
+Jan_2015_data <- Q3_data[Q3_data$month == '2015-01']
+
+#### 尋找每日最小，接著再做平均
+
+lowest_DTP <- aggregate(as.numeric(Jan_2015_data$TX01), by = list(Jan_2015_data$day), FUN = min_omit_na)
+
+mean_lowest_DTP <- mean(as.numeric(lowest_DTP$x), na.rm = F)
+
+
+### according to 'mean_lowest_DTP', answer is 14.4903
 
 ```
 
@@ -126,8 +157,9 @@ head(trans_Q3_sheet)
 
 ### (e) 請計算 2014 年和 2015 年中，最熱的月分別是在哪個月份？
 ```{r}
+### 呈3-C，由'sort'觀察'mean_MTP'可知最熱月分別在'2014-07', '2015-06'
 
-
+Jan_2015_data <- Q3_data[Q3_data$month == '2015-01']
 
 ```
 
@@ -135,8 +167,26 @@ head(trans_Q3_sheet)
 
 ### (f) 請計算 2014 年最熱的月份中，該月的每日最高溫平均為幾度C?
 ```{r}
+### 同3-d，因為知道2014的7月是最冷月，故直接將'Q3_data'中的2014部分提出，在尋找7月每日最小值，最後平均可得
 
+#### write a funtion to find max first
 
+max_omit_na <- function(x){
+   x <- as.numeric(x)
+  return (max(x, na.rm = T))
+}
+
+#### 拉出'2014-07'data
+
+July_2014_data <- Q3_data[Q3_data$month == '2014-07']
+
+#### 尋找每日最大，接著再做平均
+
+highest_DTP <- aggregate(as.numeric(July_2014_data$TX01), by = list(July_2014_data$day), FUN = max_omit_na)
+
+mean_highest_DTP <- mean(as.numeric(highest_DTP$x), na.rm = F)
+
+#### according to 'mean_highest_DTP', answer is 34.9226
 
 ```
 
