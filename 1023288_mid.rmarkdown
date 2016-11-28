@@ -66,7 +66,7 @@ library(dplyr)
 
 ##### 新增'年'與'日'的時間標記以便後續計算
 
-Q3_data[, day:= format.Date(timestamp, '%Y-%m-%d')] 
+Q3_data [, day:= format.Date(timestamp, '%Y-%m-%d')] 
 
 Q3_data[, month:= format.Date(timestamp, '%Y-%m')]
 
@@ -131,7 +131,7 @@ Q3_d <- filter(mean_min_DTP, month == '2015-01')
 ```
 
 ### (e) 請計算 2014 年和 2015 年中，最熱的月分別是在哪個月份？
-```{r}
+```{r Q3_e, message=FALSE, warning=FALSE}
 #### 呈c
 
 Q3_e <- arrange_MT[23:24, 1:2]
@@ -139,7 +139,7 @@ Q3_e <- arrange_MT[23:24, 1:2]
 ```
 
 ### (f) 請計算 2014 年最熱的月份中，該月的每日最高溫平均為幾度C?
-```{r}
+```{r Q3_f, message=FALSE, warning=FALSE}
 max_DTP <- summarise(by_month_day, hotest_d = max(TX01, na.rm = T))
 
 by_month3 <- group_by(max_DTP, month)
@@ -151,7 +151,7 @@ Q3_f <- filter(mean_max_DTP, month == '2014-07')
 ```
 
 ### (g) 請算出 2014 至 2015 年中，最濕月份的平均溫度
-```{r}
+```{r Q3_g, message=FALSE, warning=FALSE}
 
 #### 排序mean_MW來看兩年最濕的月份
 
@@ -168,17 +168,26 @@ Q3_g <- filter(sum_TP, month == '2014-09' | month == '2015-08')
 ### 可得2014-09 為 28.758 , 2015-08 為 27.828 
 ```
 
-### (h) 請計算每個月的月溫差(每月最高溫減去每月最高溫，取兩年平均)，平均月溫差最大的是哪個月？
-```{r}
-#### 利用mutate 運算
+### (h) 請計算每個月的月溫差(每月最高溫減去每月最低溫，取兩年平均)，平均月溫差最大的是哪個月？
+```{r Q3_h, message=FALSE, warning=FALSE}
+#### 先將'年月日'綁起來，計算每年每月日均溫，在尋找每月的最大最小為誰，最後利用mutate運算
+by_yr_mon_day <- group_by(tbl_Q3_data, year, month, day)
+everyday_mean <- summarise(by_yr_mon_day, day_mean_TP = mean(TX01, na.rm = T))
+by_yr_mon <- group_by(everyday_mean, year, month)
+everyday_max_min_TP <- summarise_all(by_yr_mon, funs(min, max))
 
+Mon_TP_DF <- mutate(everyday_max_min_TP, df = day_mean_TP_max - day_mean_TP_min)
+
+mean_Mon_TP_DF <- (Mon_TP_DF[1:12,7] + Mon_TP_DF[13:24,7])/2
+
+# from mean_Mon_TP_DF can see Feb is max.
+
+Q3_h <- 'Feb, 10.498913 degree'
 
 ```
 
-
-
 ### (i) 請計算這兩年的年溫差平均(每年最高溫減去最低溫)
-```{r}
+```{r Q3_i, message=FALSE, warning=FALSE}
 
 
 
@@ -192,13 +201,13 @@ Q3_g <- filter(sum_TP, month == '2014-09' | month == '2015-08')
 ####  (3) 將所有減去 5 ºC 或當成 0 ºC 的月均溫相加起來得到的數據稱為「溫量指數」
 
 ###  請根據 (b) 所計算出的數值，算出 2014 至 2015年的溫量指數
-```{r}
+```{r Q3_j, message=FALSE, warning=FALSE}
 
 
 
 ```
 ### (k) 請使用 climatol package 繪製 2014 至 2015 的生態氣候圖(Ecological climate diagrams)。 提示：你需要計算出每個月的累積降水平均、每日最高溫平均、每日最低溫平均、每月絕對最低溫。
-```{r}
+```{r Q3_k, message=FALSE, warning=FALSE}
 
 
 
