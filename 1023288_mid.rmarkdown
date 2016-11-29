@@ -2,7 +2,7 @@
 title: "1023288_mid.rmarkdown"
 author: "廖凱鋐"
 date: "2016年11月22日"
-output: html_document
+output: HTML_document
 setwd('D:/凱/生態資訊/')
 ---
 # 期中考題
@@ -17,7 +17,7 @@ write.table(Q1, file = "random10k.csv", sep = "," , row.names = F)
 
 ```
 #
-
+#
 ## 二. 請使用 for 迴圈列出 15 個費布納西(Fibonacci)數列 (10%)
 ```{r Q2, message=FALSE, warning=FALSE}
 ### deside n, f1, f2 first and write 'for'
@@ -34,8 +34,8 @@ for (x in 3:n) {
 fib
 
 ```
-
-
+#
+#
 ## 三. 請將 sample_data.txt 輸入進 R 內，並完成以下計算 (55%)
 ```{r Q3, message=FALSE, warning=FALSE}
 ### lib 'data.tabe' first, and use 'fread' @@clean data first
@@ -46,7 +46,7 @@ Q3_data <- fread('D:/凱/生態資訊/data/ecoinfo2016fm-master/sample_data.txt'
 head(Q3_data)
 
 ```
-
+#
 ### (a) 將 yyyymmddhh 轉成 POSIXct 時間戳記格式， 並新增為一個欄(variable)，命名為 timestamp。並將此 sample data 輸出為 sample_data_parsed.csv (以逗號分隔，具有欄位名稱)
 ```{r Q3-a, message=FALSE, warning=FALSE}
 #### create a variable: data[, timestamps:=as.POSIXct(strptime(yyyymmddhh,'%Y%m%d%H'))]
@@ -60,17 +60,21 @@ head(Q3_data)
 
 ```
 
-### (b) 請計算 2014 年至 2015 年這個測站的每月平均氣溫(mean_MTP)、每月平均濕度(mean_MW)、每月累積降水(sum_MR)， 並用表格呈現。  @@TX01: 溫度(ºC), RH01: 相對濕度(%), PP01: 降水量(mm)
+#
+### (b) 請計算 2014 年至 2015 年這個測站的每月平均氣溫(mean_MTP)、每月平均濕度(mean_MW)、每月累積降水(sum_MR)，並用表格呈現。備註：TX01: 溫度(ºC), RH01: 相對濕度(%), PP01: 降水量(mm)
 ```{r Q3-b, message=FALSE, warning=FALSE}
 library(dplyr)
 
 ##### 新增'年'與'日'的時間標記以便後續計算
 
-Q3_data [, day:= format.Date(timestamp, '%Y-%m-%d')] 
+Q3_data[, day:= format.Date(timestamp, '%Y-%m-%d')] 
 
 Q3_data[, month:= format.Date(timestamp, '%Y-%m')]
 
-Q3_data[, year:= format.Date(timestamp, '%Y')] 
+Q3_data[, year:= format.Date(timestamp, '%Y')]
+
+Q3_data[, mon:= format.Date(timestamp, '%m')]
+
 
 #### 將表格轉換為'tbl'
 
@@ -78,15 +82,15 @@ tbl_Q3_data <- tbl_df(Q3_data)
 
 #### 將月份綁起來(group_by)
 
-by_month <- group_by(tbl_Q3_data, month)
+by_month_b <- group_by(tbl_Q3_data, month)
 
 #### 以'summarise'做各項計算
 
-mean_MTP <- summarise(by_month, Tavg = mean(as.numeric(TX01), na.rm = T ))
+mean_MTP <- summarise(by_month_b, Tavg = mean(as.numeric(TX01), na.rm = T ))
 
-mean_MW <- summarise(by_month, Wavg = mean(as.numeric(RH01), na.rm = T ))
+mean_MW <- summarise(by_month_b, Wavg = mean(as.numeric(RH01), na.rm = T ))
 
-sum_MR <- summarise(by_month, Rsum = sum(as.numeric(PP01), na.rm = T ))
+sum_MR <- summarise(by_month_b, Rsum = sum(as.numeric(PP01), na.rm = T ))
 
 #### 將三個表格cbind 並改colname 與 trans
 
@@ -100,36 +104,39 @@ Q3_b <- t(Q3_sheet)
 
 
 ```
-
+#
 ### (c) 請計算 2014 年和 2015 年最冷月分別是在哪個月份？(提示：先計算月均溫)
 ```{r Q3-c, message=FALSE, warning=FALSE}
+
 #### 排序 'arrange'
 
 arrange_MT <- arrange(Q3_sheet, Tavg)
 
 Q3_c <- arrange_MT[1:2,1:2]
+
 ### 2014-01, 2015-01 coldest
 
 ```
-
+#
 ### (d) 在 2015 年最冷的那個月份中，該月中每日的最低溫平均是幾度C？
 ```{r Q3-d, message=FALSE, warning=FALSE}
 #### 把"月" , "日" 包起來，先算每一天的最低溫
 
-by_month_day <- group_by(tbl_Q3_data, month, day)
+by_month_day_d <- group_by(tbl_Q3_data, month, day)
 
-min_DTP <- summarise(by_month_day, coldest_d = min(TX01, na.rm = T))
+min_DTP <- summarise(by_month_day_d, coldest_d = min(TX01, na.rm = T))
 
 
 #### 在把上表的"月"包起來，算平均，最後過濾"2015-01"
-by_month2 <- group_by(min_DTP, month)
+by_month_d <- group_by(min_DTP, month)
 
-mean_min_DTP <- summarise(by_month2, mean_coldest_d = mean(coldest_d, na.rm = T))
+mean_min_DTP <- summarise(by_month_d, mean_coldest_d = mean(coldest_d, na.rm = T))
 
 Q3_d <- filter(mean_min_DTP, month == '2015-01')
 
 ```
 
+#
 ### (e) 請計算 2014 年和 2015 年中，最熱的月分別是在哪個月份？
 ```{r Q3_e, message=FALSE, warning=FALSE}
 #### 呈c
@@ -137,19 +144,19 @@ Q3_d <- filter(mean_min_DTP, month == '2015-01')
 Q3_e <- arrange_MT[23:24, 1:2]
 
 ```
-
+#
 ### (f) 請計算 2014 年最熱的月份中，該月的每日最高溫平均為幾度C?
 ```{r Q3_f, message=FALSE, warning=FALSE}
-max_DTP <- summarise(by_month_day, hotest_d = max(TX01, na.rm = T))
+max_DTP <- summarise(by_month_day_d, hotest_d = max(TX01, na.rm = T))
 
-by_month3 <- group_by(max_DTP, month)
+by_month_f <- group_by(max_DTP, month)
 
-mean_max_DTP <- summarise(by_month3, mean_hotest_d = mean(hotest_d, na.rm = T))
+mean_max_DTP <- summarise(by_month_f, mean_hotest_d = mean(hotest_d, na.rm = T))
 
 Q3_f <- filter(mean_max_DTP, month == '2014-07')
 
 ```
-
+#
 ### (g) 請算出 2014 至 2015 年中，最濕月份的平均溫度
 ```{r Q3_g, message=FALSE, warning=FALSE}
 
@@ -161,40 +168,51 @@ arrange(mean_MW, -Wavg)
 
 #### 接著找尋這兩個月份的平均溫度
 
-sum_TP <- summarise(by_month, MTP = mean(TX01, na.rm = T))
+sum_TP <- summarise(by_month_b, MTP = mean(TX01, na.rm = T))
 
 Q3_g <- filter(sum_TP, month == '2014-09' | month == '2015-08')  
 
 ### 可得2014-09 為 28.758 , 2015-08 為 27.828 
 ```
-
+#
 ### (h) 請計算每個月的月溫差(每月最高溫減去每月最低溫，取兩年平均)，平均月溫差最大的是哪個月？
 ```{r Q3_h, message=FALSE, warning=FALSE}
+
 #### 先將'年月日'綁起來，計算每年每月日均溫，在尋找每月的最大最小為誰，最後利用mutate運算
-by_yr_mon_day <- group_by(tbl_Q3_data, year, month, day)
-everyday_mean <- summarise(by_yr_mon_day, day_mean_TP = mean(TX01, na.rm = T))
-by_yr_mon <- group_by(everyday_mean, year, month)
-everyday_max_min_TP <- summarise_all(by_yr_mon, funs(min, max))
+
+by_yr_mon_day_h <- group_by(tbl_Q3_data, year, month, day)
+
+everyday_mean <- summarise(by_yr_mon_day_h, day_mean_TP = mean(TX01, na.rm = T))
+
+by_yr_mon_h <- group_by(everyday_mean, year, month)
+everyday_max_min_TP <- summarise_all(by_yr_mon_h, funs(min, max))
 
 Mon_TP_DF <- mutate(everyday_max_min_TP, df = day_mean_TP_max - day_mean_TP_min)
-
 mean_Mon_TP_DF <- (Mon_TP_DF[1:12,7] + Mon_TP_DF[13:24,7])/2
 
-# from mean_Mon_TP_DF can see Feb is max.
+### from mean_Mon_TP_DF can see Feb is max.
 
 Q3_h <- 'Feb, 10.498913 degree'
 
 ```
-
+#
 ### (i) 請計算這兩年的年溫差平均(每年最高溫減去最低溫)
 ```{r Q3_i, message=FALSE, warning=FALSE}
+#### 同3-h 作法，將'年月'綁起來做'平均'後，找'極值'在找'差值' ，最後將兩年平均可得
 
+by_yr_mon_i <- group_by(tbl_Q3_data, year, month)
+mean_MTP_by_yr <- summarise(by_yr_mon_i, Tavg_per_yr = mean(as.numeric(TX01), na.rm = T ))
 
+by_yr_i <- group_by(mean_MTP_by_yr, year)
+MTP_max_min_per_yr <- summarise_all(by_yr_i, funs(min, max))
+Mon_TP_DF_per_yr <- mutate(MTP_max_min_per_yr, df = Tavg_per_yr_max - Tavg_per_yr_min)
+
+yr_TP_DF <- summarise(Mon_TP_DF_per_yr, mean_df= mean(df, na.rm = T ))
+
+Q3_i <- yr_TP_DF
 
 ```
-
-
-
+#
 ###(j) 溫量指數(warmth index)是 Kira (1945) 提出的一個生態氣候指標，其計算方式為:
 ####  (1) 若該月均溫高於 5 ºC，則將該月份的月均溫減去 5 ºC。
 ####  (2) 若該月均溫低於或等於 5 ºC，則令其為 0 ºC
@@ -202,14 +220,56 @@ Q3_h <- 'Feb, 10.498913 degree'
 
 ###  請根據 (b) 所計算出的數值，算出 2014 至 2015年的溫量指數
 ```{r Q3_j, message=FALSE, warning=FALSE}
+#### 先回顧一下Q3_sheet，用mutate計算並設計條件判斷，最後加總可得溫量指數
+Q3_sheet
 
+Warmth_index <- mutate(Q3_sheet, warmth_index = 
+  if (Tavg > 5.00000) {Tavg -5}
 
+  else if (Tavg <= 5.00000) {Tavg = 0}
+)
+
+Q3_j <- summarise(Warmth_index, Warmth_index_sum = sum(as.numeric(warmth_index)))
 
 ```
+#
 ### (k) 請使用 climatol package 繪製 2014 至 2015 的生態氣候圖(Ecological climate diagrams)。 提示：你需要計算出每個月的累積降水平均、每日最高溫平均、每日最低溫平均、每月絕對最低溫。
 ```{r Q3_k, message=FALSE, warning=FALSE}
 
+by_year_mon_month_k <- group_by(tbl_Q3_data, year, mon, month)
 
+mon_sum_R_per_yr <- summarise(by_year_mon_month_k, sumR_per_yr = sum(PP01, na.rm = T))
+
+by_year_mon_k <- group_by(mon_sum_R_per_yr, year, mon)
+
+mean_yr_sumR <- summarise(by_year_mon_k, mean_sumR = mean(sumR_per_yr, na.rm = T))
+
+by_year <- group_by(mean_yr_sumR, year)
+
+
+
+mon_c <- c("01","02","03","04","05","06","07","08","09","10","11","12")
+
+mean_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(mean(x, na.rm = T))
+} 
+#### summarise_all(filter(mean_yr_sumR, mon == mon_c[i])[,3], mean_omit_na)
+#### test_1 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[1])[,3], mean_omit_na)
+#### test_2 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[2])[,3], mean_omit_na)
+#### test_3 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[3])[,3], mean_omit_na)
+#### rbind(test_1, test_2, test_3)
+
+#for (i in 2:12) {
+
+
+
+
+
+
+#library(climatol)
+
+#climatol::diagwl()
 
 ```
 
@@ -219,12 +279,128 @@ Q3_h <- 'Feb, 10.498913 degree'
 ### (a) 請計算各島環境因子(total_cover, C, EC, ..., etc.) 的平均、 第一四分位數、中位數、第三四分位數、最大值及最小值以及標準差，並整理成如下表格：
 ```{r}
 
+tbl_Q4_data <- tbl_df(read.table('D:/凱/生態資訊/data/ecoinfo2016fm-master/penghu_env.csv', header = T, fileEncoding = "UTF-8", sep = ","))
+
+except_plotid <- select(tbl_Q4_data, -plotid)
+
+by_islands <- group_by(except_plotid, island)
+
+#### funs
+{
+mean_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(mean(x, na.rm = T))
+} 
+
+q1 <- function(x){
+  x <- as.numeric(x)
+  return(quantile(x, 0.25, na.rm = T))
+}
+
+q2 <- function(x){
+  x <- as.numeric(x)
+  return(quantile(x, 0.50, na.rm = T))
+}  
+
+q3 <- function(x){
+  x <- as.numeric(x)
+  return(quantile(x, 0.75, na.rm = T))
+} 
+
+max_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(max(x, na.rm = T))
+} 
+
+min_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(min(x, na.rm = T))
+} 
+
+sd_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(sd(x, na.rm = T))
+} 
+}
+
+#### calculate mean_omit_na, q1, q2, q3, max_omit_na, min_omit_na, sd_omit_na
+
+Q4_data_calculate <- summarise_all(by_islands, funs(mean_omit_na, q1, q2, q3, max_omit_na, min_omit_na, sd_omit_na))
+
+#### separate into 7 tables, rename, gather 
+
+Q4_colname <- c("island","total_cover", "C", "EC", "K", "Na", "N", "rock_ratio" )
+
+##### mean
+{
+Q4_data_mean <- select(Q4_data_calculate, island:rock_ratio_mean_omit_na )
+setnames(Q4_data_mean, Q4_colname )
+by_island_mean <- group_by(Q4_data_mean, island)
+Q4_data_mean_sort <- gather(by_island_mean, factor, mean,  total_cover:rock_ratio )
+paste_mean <- paste(Q4_data_mean_sort$island, Q4_data_mean_sort$factor, sep = ',' )
+}
+
+##### q1
+{
+Q4_data_q1 <- select(Q4_data_calculate, island,total_cover_q1:rock_ratio_q1 )
+setnames(Q4_data_q1, Q4_colname )
+by_island_q1 <- group_by(Q4_data_q1, island)
+Q4_data_q1_sort <- gather(by_island_q1, factor, q1,  total_cover:rock_ratio )
+}
+
+##### q2
+{
+Q4_data_q2 <- select(Q4_data_calculate, island,total_cover_q2:rock_ratio_q2 )
+setnames(Q4_data_q2, Q4_colname )
+by_island_q2 <- group_by(Q4_data_q2, island)
+Q4_data_q2_sort <- gather(by_island_q2, factor, q2,  total_cover:rock_ratio )
+}
+
+##### q3
+{
+Q4_data_q3 <- select(Q4_data_calculate, island,total_cover_q3:rock_ratio_q3 )
+setnames(Q4_data_q3, Q4_colname )
+by_island_q3 <- group_by(Q4_data_q3, island)
+Q4_data_q3_sort <- gather(by_island_q3, factor, q3,  total_cover:rock_ratio )
+}
+
+##### max
+{
+Q4_data_max <- select(Q4_data_calculate, island,total_cover_max_omit_na:rock_ratio_max_omit_na )
+setnames(Q4_data_max, Q4_colname )
+by_island_max <- group_by(Q4_data_max, island)
+Q4_data_max_sort <- gather(by_island_max, factor, max,  total_cover:rock_ratio )
+}
+
+##### min
+{
+Q4_data_min <- select(Q4_data_calculate, island,total_cover_min_omit_na:rock_ratio_min_omit_na )
+setnames(Q4_data_min, Q4_colname )
+by_island_min <- group_by(Q4_data_min, island)
+Q4_data_min_sort <- gather(by_island_min, factor, min,  total_cover:rock_ratio )
+}
+
+##### sd
+{
+Q4_data_sd <- select(Q4_data_calculate, island,total_cover_sd_omit_na:rock_ratio_sd_omit_na )
+setnames(Q4_data_sd, Q4_colname )
+by_island_sd <- group_by(Q4_data_sd, island)
+Q4_data_sd_sort <- gather(by_island_sd, factor, sd,  total_cover:rock_ratio )
+}
+
+#### cbind the col which Q4 needed, rename in "island,total_cover", "Mean", "Q1", "Mid", "Q3", "Max", "Min", "Sd"
+
+Q4_sheet <- cbind.data.frame(paste_mean, Q4_data_mean_sort$mean, Q4_data_q1_sort$q1, Q4_data_q2_sort$q2, Q4_data_q3_sort$q3, Q4_data_max_sort$max, Q4_data_min_sort$min, Q4_data_sd_sort$sd)
+
+Q4_rename <- c("island,total_cover", "Mean", "Q1", "Mid", "Q3", "Max", "Min", "Sd" )
+setnames(Q4_sheet, Q4_rename )
+
+Q4_a <- Q4_sheet
 
 
 ```
 ### (b) 請分別列出 C, EC, K, Na, N 最高的五個樣區(plotid)
 ```{r}
-
 
 
 ```
