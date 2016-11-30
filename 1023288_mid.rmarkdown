@@ -75,6 +75,8 @@ Q3_data[, year:= format.Date(timestamp, '%Y')]
 
 Q3_data[, mon:= format.Date(timestamp, '%m')]
 
+Q3_data[, mon_day:= format.Date(timestamp, '%m-%d')]
+
 
 #### 將表格轉換為'tbl'
 
@@ -236,6 +238,8 @@ Q3_j <- summarise(Warmth_index, Warmth_index_sum = sum(as.numeric(warmth_index))
 ### (k) 請使用 climatol package 繪製 2014 至 2015 的生態氣候圖(Ecological climate diagrams)。 提示：你需要計算出每個月的累積降水平均、每日最高溫平均、每日最低溫平均、每月絕對最低溫。
 ```{r Q3_k, message=FALSE, warning=FALSE}
 
+#### 兩年每月累積降水平均
+
 by_year_mon_month_k <- group_by(tbl_Q3_data, year, mon, month)
 
 mon_sum_R_per_yr <- summarise(by_year_mon_month_k, sumR_per_yr = sum(PP01, na.rm = T))
@@ -244,9 +248,11 @@ by_year_mon_k <- group_by(mon_sum_R_per_yr, year, mon)
 
 mean_yr_sumR <- summarise(by_year_mon_k, mean_sumR = mean(sumR_per_yr, na.rm = T))
 
-by_year <- group_by(mean_yr_sumR, year)
-
-
+#### summarise_all(filter(mean_yr_sumR, mon == mon_c[i])[,3], mean_omit_na)
+#### test_1 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[1])[,3], mean_omit_na)
+#### test_2 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[2])[,3], mean_omit_na)
+#### test_3 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[3])[,3], mean_omit_na)
+#### rbind(test_1, test_2, test_3)
 
 mon_c <- c("01","02","03","04","05","06","07","08","09","10","11","12")
 
@@ -254,28 +260,63 @@ mean_omit_na <- function(x){
   x <- as.numeric(x)
   return(mean(x, na.rm = T))
 } 
-#### summarise_all(filter(mean_yr_sumR, mon == mon_c[i])[,3], mean_omit_na)
-#### test_1 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[1])[,3], mean_omit_na)
-#### test_2 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[2])[,3], mean_omit_na)
-#### test_3 <- summarise_all(filter(mean_yr_sumR, mon == mon_c[3])[,3], mean_omit_na)
-#### rbind(test_1, test_2, test_3)
 
-#for (i in 2:12) {
+value.list <- vector("list", 12)
+  
+  for (i in 1:12) {
+    
+   values <- summarise_all(filter(mean_yr_sumR, mon == mon_c[i])[,3], mean_omit_na)
+    
+    value.list[[i]] <- values
+  }
+
+mean_MsumR_per_yr <- do.call(rbind, value.list)
+
+
+#### 兩年每日最高平均 2014每日最高溫+ 2015年每日最高溫 /2
+
+max_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(max(x, na.rm = T))
+} 
+
+min_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(min(x, na.rm = T))
+} 
+
+
+
+by_year_mon_day <- group_by(tbl_Q3_data, year, mon_day)
+
+DTP_max_per_yr <- summarise(by_year_mon_day, dTP_max = max(TX01, na.rm = T))
+
+summarise_all(filter(mean_yr_sumR, mon == mon_c[i])[,3], mean_omit_na)
+
+##### same as mean
+
+
+#### 兩年每日對低溫平均
+
+
+
+
+#### 兩年每月絕對最低溫
 
 
 
 
 
-
+#### 畫圖
 #library(climatol)
 
 #climatol::diagwl()
 
 ```
-
-
+#
+#
 ## 四. 請計算 Table 2 中的下列各子題 (30%)
-
+#
 ### (a) 請計算各島環境因子(total_cover, C, EC, ..., etc.) 的平均、 第一四分位數、中位數、第三四分位數、最大值及最小值以及標準差，並整理成如下表格：
 ```{r}
 
@@ -285,12 +326,9 @@ except_plotid <- select(tbl_Q4_data, -plotid)
 
 by_islands <- group_by(except_plotid, island)
 
+library(tidyr)
 #### funs
 {
-mean_omit_na <- function(x){
-  x <- as.numeric(x)
-  return(mean(x, na.rm = T))
-} 
 
 q1 <- function(x){
   x <- as.numeric(x)
@@ -307,15 +345,6 @@ q3 <- function(x){
   return(quantile(x, 0.75, na.rm = T))
 } 
 
-max_omit_na <- function(x){
-  x <- as.numeric(x)
-  return(max(x, na.rm = T))
-} 
-
-min_omit_na <- function(x){
-  x <- as.numeric(x)
-  return(min(x, na.rm = T))
-} 
 
 sd_omit_na <- function(x){
   x <- as.numeric(x)
@@ -399,14 +428,23 @@ Q4_a <- Q4_sheet
 
 
 ```
+#
 ### (b) 請分別列出 C, EC, K, Na, N 最高的五個樣區(plotid)
 ```{r}
 
+tbl_Q4_data
 
-```
+except_island_total_rock <- select(tbl_Q4_data, -island, -total_cover, -rock_ratio)
 
+C_max_plotid <- top_n(except_island_total_rock, 1, C)[1,1]
 
-```{r}
+EC_max_plotid <- top_n(except_island_total_rock, 1, EC)[1,1]  
+
+K_max_plotid <- top_n(except_island_total_rock, 1, K)[1,1]
+
+Na_max_plotid <- top_n(except_island_total_rock, 1, Na)[1,1]
+
+N_max_plotid <- top_n(except_island_total_rock, 1, N)[1,1]
 
 ```
 
