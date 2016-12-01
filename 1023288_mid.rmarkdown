@@ -75,6 +75,8 @@ Q3_data[, year:= format.Date(timestamp, '%Y')]
 
 Q3_data[, mon:= format.Date(timestamp, '%m')]
 
+Q3_data[, date:= format.Date(timestamp, '%d')]
+
 Q3_data[, mon_day:= format.Date(timestamp, '%m-%d')]
 
 
@@ -239,7 +241,7 @@ Q3_j <- summarise(Warmth_index, Warmth_index_sum = sum(as.numeric(warmth_index))
 ### (k) 請使用 climatol package 繪製 2014 至 2015 的生態氣候圖(Ecological climate diagrams)。 提示：你需要計算出每個月的累積降水平均、每日最高溫平均、每日最低溫平均、每月絕對最低溫。
 ```{r Q3_k, message=FALSE, warning=FALSE}
 
-#### 兩年每月累積降水平均
+#### 兩年每月累積降水平均(用有趣的方法~)
 
 by_year_mon_month_k <- group_by(tbl_Q3_data, year, mon, month)
 
@@ -274,44 +276,59 @@ value.list <- vector("list", 12)
 mean_MsumR_per_yr <- do.call(rbind, value.list)
 
 
-#### 兩年每日最高平均 2014每日最高溫+ 2015年每日最高溫 /2
+#### 兩年每月每日最高溫平均 
 
-max_omit_na <- function(x){
-  x <- as.numeric(x)
-  return(max(x, na.rm = T))
-} 
+by_mon_date <- group_by(tbl_Q3_data, mon, date)
+
+MTP_max_per <- summarise(by_mon_date, dTP_max = mean(TX01, na.rm = T))
+
+by_mon_max <- group_by(MTP_max_per, mon)
+
+MTP_max_per_yr <- summarise(by_mon_max, mean_mTP_max = max(dTP_max, na.rm = T))
+
+#### 兩年每月每日最低溫平均
+
+MTP_min_per <- summarise(by_mon_date, dTP_min = mean(TX01, na.rm = T))
+
+by_mon_min <- group_by(MTP_min_per, mon)
+
+MTP_min_per_yr <- summarise(by_mon_min, mean_mTP_min = min(dTP_min, na.rm = T))
+
+#### 兩年每月絕對(Absolute)最低溫
 
 min_omit_na <- function(x){
   x <- as.numeric(x)
   return(min(x, na.rm = T))
 } 
 
-by_year_mon_day <- group_by(tbl_Q3_data, year, mon_day)
+by_monday_ab1 <- group_by(tbl_Q3_data, mon_day, mon, timestamp)
 
-DTP_max_per_yr <- summarise(by_year_mon_day, dTP_max = max(TX01, na.rm = T))
+Amin_TP <- summarise(by_monday_ab1, Amin_TP = min(TX01, na.rm = T))
 
-filter(DTP_max_per_yr, year)
+by_monday_ab2 <- group_by(Amin_TP, mon_day, mon)
 
-#mutate(yr_DTP, col = 3,6, mean_omit_na)#
-
-##### same as mean
-
-
-#### 兩年每日對低溫平均
+Amin_TP_per_yr <- summarise(by_monday_ab2, Amin_Tp = min(Amin_TP, na.rm = T))
 
 
 
+AminTP_value.list <- vector("list", 12)
+  
+  for (m in 1:12) {
+    
+   AminTP_value <- summarise_all(filter(Amin_TP_per_yr, mon == mon_c[m])[,3], min_omit_na)
+    
+    AminTP_value.list[[m]] <- AminTP_value
+  }
 
-#### 兩年每月絕對最低溫
+Abmin_MTP_per_yr <- do.call(rbind, AminTP_value.list)
 
 
-
-
+Q3_k_sheet <- cbind.data.frame(MTP_min_per_yr$mon,mean_MsumR_per_yr,MTP_max_per_yr$mean_mTP_max,MTP_min_per_yr$mean_mTP_min,Abmin_MTP_per_yr)
 
 #### 畫圖
-#library(climatol)
+library(climatol)
+library(ciro)
 
-#climatol::diagwl()
 
 ```
 #
@@ -331,6 +348,16 @@ library(tidyr)
 #### funs
 {
 
+max_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(max(x, na.rm = T))
+} 
+
+min_omit_na <- function(x){
+  x <- as.numeric(x)
+  return(min(x, na.rm = T))
+} 
+  
 q1 <- function(x){
   x <- as.numeric(x)
   return(quantile(x, 0.25, na.rm = T))
