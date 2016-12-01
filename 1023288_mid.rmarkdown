@@ -84,7 +84,7 @@ tbl_Q3_data <- tbl_df(Q3_data)
 
 #### 將月份綁起來(group_by)
 
-by_month_b <- group_by(tbl_Q3_data, month)
+by_month_b <- group_by(tbl_Q3_data, mon)
 
 #### 以'summarise'做各項計算
 
@@ -93,6 +93,7 @@ mean_MTP <- summarise(by_month_b, Tavg = mean(as.numeric(TX01), na.rm = T ))
 mean_MW <- summarise(by_month_b, Wavg = mean(as.numeric(RH01), na.rm = T ))
 
 sum_MR <- summarise(by_month_b, Rsum = sum(as.numeric(PP01), na.rm = T ))
+
 
 #### 將三個表格cbind 並改colname 與 trans
 
@@ -285,13 +286,13 @@ min_omit_na <- function(x){
   return(min(x, na.rm = T))
 } 
 
-
-
 by_year_mon_day <- group_by(tbl_Q3_data, year, mon_day)
 
 DTP_max_per_yr <- summarise(by_year_mon_day, dTP_max = max(TX01, na.rm = T))
 
-summarise_all(filter(mean_yr_sumR, mon == mon_c[i])[,3], mean_omit_na)
+filter(DTP_max_per_yr, year)
+
+#mutate(yr_DTP, col = 3,6, mean_omit_na)#
 
 ##### same as mean
 
