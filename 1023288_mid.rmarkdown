@@ -169,13 +169,13 @@ Q3_f <- filter(mean_max_DTP, month == '2014-07')
 
 arrange(mean_MW, -Wavg)
 
-#### 可得2014-09, 2015-08 最濕
+#### 可得 8 月 最濕
 
 #### 接著找尋這兩個月份的平均溫度
 
 sum_TP <- summarise(by_month_b, MTP = mean(TX01, na.rm = T))
 
-Q3_g <- filter(sum_TP, month == '2014-09' | month == '2015-08')  
+Q3_g <- filter(sum_TP, mon == '08')  
 
 ### 可得2014-09 為 28.758 , 2015-08 為 27.828 
 ```
@@ -323,13 +323,47 @@ AminTP_value.list <- vector("list", 12)
 Abmin_MTP_per_yr <- do.call(rbind, AminTP_value.list)
 
 
-Q3_k_sheet <- cbind.data.frame(MTP_min_per_yr$mon,mean_MsumR_per_yr,MTP_max_per_yr$mean_mTP_max,MTP_min_per_yr$mean_mTP_min,Abmin_MTP_per_yr)
+Q3_k_sheet_1 <- cbind.(MTP_min_per_yr$mon,mean_MsumR_per_yr,MTP_max_per_yr$mean_mTP_max,MTP_min_per_yr$mean_mTP_min,Abmin_MTP_per_yr)
+
+K_colnames <- c("month", "sumR", "MaxTP", "minTP", "AmintP")
+
+Q3_k_sheet <- t(setnames(Q3_k_sheet_1, K_colnames))
+
+write.table(Q3_k_sheet, file = "diag_data.csv", sep = "," , col.names = F)
+
 
 #### 畫圖
-library(climatol)
-library(ciro)
+###### 設定工作目錄
+#setwd('/Users/psilotum/Documents/Dropbox/Courses/植群生態學/climatic_diagram/')
+# 設定字型，這裡使用 Noto Sans T Chinese
+#CairoFonts(regular = "Noto Sans T Chinese:style=Light", bold = "Noto Sans T Chinese:style=Regular")
+#par(family='Noto Sans T Chinese')
 
+# custom function to draw climatic diagrams
+#exportEcoDiag <- function(climfile, station_name, filename, elevation, data_period) {
+#  climdata <- read.csv(climfile, row.names = 1)  
+#  Cairo(1600, 1600, file=filename, type="png", bg="white", dpi=300)
+#  diagwl(climdata, est=station_name, 
+#         alt=elevation, per=data_period)
+#  dev.off()
+#}
 
+# Zonobiome I
+#exportEcoDiag('Congo_Kisangami.csv', 'Kisangami (Congo)', 'ZB1-Kisangami.png', '447', '2010')
+
+#library(climatol)
+#library(Cairo)
+
+#diagdata <- fread('D:/凱/生態資訊/diag_data.csv', header = T) 
+
+#diagname <- c("month","Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", #"Sep", "Oct", "Nov", "Dec")
+
+#as.data.frame.logical(diagdata)
+#as.data.framediagdata[1:4,]
+#tbl_df(diagdata)
+#datcli
+#tbl_df(Q3_k_sheet)
+#diagwl(diagdata,est="Example station",alt=100,per="1961-90",mlab="en")
 ```
 #
 #
