@@ -3,10 +3,16 @@ title: "1023288_mid.rmarkdown"
 author: "廖凱鋐"
 date: "2016年11月22日"
 output: html_document
-setwd('D:/凱/生態資訊/')
+
 ---
 # 期中考題
 #
+```{r}
+
+setwd('D:/凱/生態資訊/')
+
+```
+
 ## 一. 請隨機產生 10000 組正整數儲存成 vector 格式，並輸出成 random10k.csv (5%)
 ```{r Q1, message=FALSE, warning=FALSE}
 ### use 'sample.int' to create 10000 positive integer. And use 'write.table' to output
@@ -333,7 +339,7 @@ Abmin_MTP_per_yr <- do.call(rbind, AminTP_value.list)
 
 #### 最後將所有元素cbind
 
-Q3_k_sheet_1 <- cbind.(MTP_min_per_yr$mon,mean_MsumR_per_yr,MTP_max_per_yr$mean_mTP_max,MTP_min_per_yr$mean_mTP_min,Abmin_MTP_per_yr)
+Q3_k_sheet_1 <- cbind(MTP_min_per_yr$mon,mean_MsumR_per_yr,MTP_max_per_yr$mean_mTP_max,MTP_min_per_yr$mean_mTP_min,Abmin_MTP_per_yr)
 
 K_colnames <- c("month", "sumR", "MaxTP", "minTP", "AmintP")
 
