@@ -107,6 +107,7 @@ setnames(Q3_sheet, col_name)
 
 Q3_b <- t(Q3_sheet)
 
+write.table(Q3_b, file = "Q3_b_sheet.csv", sep = "," , col.names = F)
 
 ```
 #
